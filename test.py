@@ -65,12 +65,13 @@ def get_cookies():
         while len(button_load) >= 1:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(1)
-            time.sleep(1)
-            if len() == 0:
-                print('Кнопка нет  = ', len(i))
+            humans = div_load.find_elements(By.CLASS_NAME, 'search-results-simple-card__wrapper')
+            if len(humans) >= 350:
+                print('Кнопка нет  = ', 0)
                 break
 
             print('Кнопка есть  = ', len(button_load))
+            print('Найдено всего соискателей = ', len(humans))
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(1)
             button_load[0].click()
