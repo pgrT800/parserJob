@@ -9,18 +9,18 @@ import pickle
 import csv
 from pass_var import passwords, login
 
-url =[
- 'https://stavropol.hh.ru/search/resume?text=&logic=normal&pos=full_text&exp_period=all_time&exp_company_size=any&exp_industry=any&area=84&relocation=living_or_relocation&salary_from=&salary_to=&currency_code=RUR&age_from=&age_to=&gender=unknown&order_by=relevance&search_period=0&items_on_page=50',
- 'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
- 'https://www.avito.ru/moskva/rezume'  
- 'https://joblab.ru/access.php',
- 'https://www.rabota.ru/v3_login.html'
- 'https://gorodrabot.ru/site/login',
+url = [
+    'https://stavropol.hh.ru/search/resume?text=&logic=normal&pos=full_text&exp_period=all_time&exp_company_size=any&exp_industry=any&area=84&relocation=living_or_relocation&salary_from=&salary_to=&currency_code=RUR&age_from=&age_to=&gender=unknown&order_by=relevance&search_period=0&items_on_page=50',
+    'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
+    'https://www.avito.ru/moskva/rezume'
+    'https://joblab.ru/access.php',
+    'https://www.rabota.ru/v3_login.html'
+    'https://gorodrabot.ru/site/login',
 ]
 
 driver = webdriver.Chrome()
 options = webdriver.ChromeOptions()
-project = []
+
 
 def get_cookies():
     # try:
@@ -62,33 +62,25 @@ def get_cookies():
         time.sleep(2)
         button_load = div_load.find_elements(By.TAG_NAME, 'button')
         time.sleep(3)
-        while len(button_load) == 1:
-            print('Кнопка есть  = ', len(button_load))
-            humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
-            if len(humans) >= 340:
-                print('Кнопка нет  = ', len(button_load))
-                break
-            print('Найдено соискателей = ', len(humans))
+        while len(button_load) >= 1:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
-            button_load = div_load.find_elements(By.TAG_NAME, 'button')
+            time.sleep(1)
+            time.sleep(1)
+            if len() == 0:
+                print('Кнопка нет  = ', len(i))
+                break
+
+            print('Кнопка есть  = ', len(button_load))
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
             button_load[0].click()
-            time.sleep(2)
+            time.sleep(1)
         print('---------------------------------------------------------------------------------------------')
-            # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            # time.sleep(3)
-            # humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
+
         page = driver.page_source
         page_hh_ru = BeautifulSoup(page, 'html.parser')
         with open("trudvsem.html", "w", encoding="utf-8") as file:
             file.write(page_hh_ru.prettify())
-        time.sleep(10)
-        humans_bs = page_hh_ru.find_all('div', {'class': 'search-results-simple-card__main-content search-results-simple-card__name'})
-        for human in humans_bs:
-            project.append({
-                'title': human.text,
-            })
-
 
     except Exception as ex:
         print(ex)
@@ -96,8 +88,6 @@ def get_cookies():
         driver.close()
     finally:
         print("Куки успешно загружены = ", url[1])
-        for job in project:
-            print(project)
 
     # try:
     #     driver.get(url[2])
@@ -134,8 +124,6 @@ def get_cookies():
     #
     # finally:
     #     print("Куки успешно загружены = ", url[5])
-
-
 
 
 def main():
