@@ -12,61 +12,45 @@ from pass_var import *
 from art import tprint
 
 url = [
-    'https://stavropol.hh.ru/search/resume?text=&logic=normal&pos=full_text&exp_period=all_time&exp_company_size=any&exp_industry=any&area=84&relocation=living_or_relocation&salary_from=&salary_to=&currency_code=RUR&age_from=&age_to=&gender=unknown&order_by=relevance&search_period=0&items_on_page=50',
+    'https://stavropol.hh.ru/search/resume',
     'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
     'https://www.avito.ru/moskva/rezume',
     'https://joblab.ru/access.php',
     'https://www.rabota.ru/v3_login.html'
     'https://gorodrabot.ru/site/login',
-
 ]
 
 project = []
 
-
 u_ag = UserAgent()
 agent = u_ag.random
-options = webdriver.ChromeOptions()
+options = webdriver.EdgeOptions()
 options.add_argument(f'user-agent{agent}')
 options.add_argument("--disable-blink-features=AutomationControlled")
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Edge(options=options)
 # options.set_preference("dom.webdriver.enabled", False)
 print(agent)
 
 
-def get_cookies():
-    # # try:
-    # #     driver.get(url[0])
-    # #     # form = driver.find_element(By.CLASS_NAME, 'account-login-tile')
-    # # # time.sleep(1)
-    # # # button_dop = form.find_element(By.CLASS_NAME, 'bloko-link_pseudo')
-    # # # time.sleep(1)
-    # # # button_dop.click()
-    # # # time.sleep(2)
-    # # # input_dop = driver.find_elements(By.CLASS_NAME, 'bloko-input-text')
-    # # # print(len(input_dop))
-    # # # time.sleep(5)
-    # # # input_dop[1].send_keys(login)
-    # # # time.sleep(4)
-    # # # input_dop[2].send_keys(passwords)
-    # # # time.sleep(3)
-    # # # input_dop[2].send_keys(Keys.ENTER)
-    # # # time.sleep(40)
-    # # # pickle.dump(driver.get_cookies(), open('cookies_hh_ru', 'wb'))
-    # #     time.sleep(2)
-    # #     cookie = pickle.load(open('cookies_hh_ru', 'rb'))
-    # #     for cookie in pickle.load(open('cookies_hh_ru', 'rb')):
-    # #         driver.add_cookie(cookie)
-    # #     time.sleep(2)
-    # #     driver.refresh()
-    # #     time.sleep(10)
-    # # except Exception as ex:
-    # #     print(ex)
-    # #     driver.quit()
-    # #     driver.close()
-    # # finally:
-    # #     print("Куки успешно загружены = ", url[0])
-    #
+def get_cookies_hh_ru():
+    # Куки хх ру и возвращение обьекта bs4
+    try:
+        driver.get(url[0])
+        time.sleep(4)
+        page_hh_ru = driver.page_source
+        page_soup_hhru = BeautifulSoup(page_hh_ru, 'html.parser')
+        for cookie in pickle.load(open('cookies_hh_ru', 'rb')):
+            driver.add_cookie(cookie)
+
+        time.sleep(2)
+        driver.refresh()
+        time.sleep(6)
+    except Exception as ex:
+        print(ex)
+
+    finally:
+        print("Куки хх ру успешно загружены = ", url[0])
+
     # try:
     #     driver.get(url[1])
     #     time.sleep(2)
@@ -112,31 +96,18 @@ def get_cookies():
     #     print("Куки успешно загружены = ", url[1])
     #     for job in project:
     #         print(job.text)
+    # Подгрузка куки Авито
 
+    return page_soup_hhru
+
+
+def get_cookies_avito():
+    # Подгрузка куки авито и возвращение обьекта bs4
     try:
         driver.get(url[2])
         time.sleep(4)
-        # time.sleep(10)
-        # button_login = driver.find_element(By.CSS_SELECTOR, '.index-inner-iPEdy > a')
-        # time.sleep(1)
-        # # #login?authsrc=h
-        # button_login.click()
-        # time.sleep(10)
-        # form = driver.find_element(By.CSS_SELECTOR, '.AuthorizationMainScreen-content-ssDk6 > form')
-        # input_value = form.find_elements(By.TAG_NAME, 'input')
-        # time.sleep(3)
-        # print(len(input_value))
-        # input_value[0].send_keys(login_avito)
-        # time.sleep(1)
-        # input_value[1].send_keys(password_avito)
-        # time.sleep(3)
-        # input_value[1].send_keys(Keys.ENTER)
-        # time.sleep(300)
-        # pickle.dump(driver.get_cookies(), open('cookies_avito', 'wb'))
-        # time.sleep(2)
         page = driver.page_source
-        page_soup_bs = BeautifulSoup(page, 'html.parser')
-        cookie = pickle.load(open('cookies_avito', 'rb'))
+        page_soup_avito = BeautifulSoup(page, 'html.parser')
         for cookie in pickle.load(open('cookies_avito', 'rb')):
             driver.add_cookie(cookie)
         time.sleep(2)
@@ -146,18 +117,9 @@ def get_cookies():
         print(ex)
 
     finally:
-        print("Куки успешно загружены = ", url[2])
+        print("Куки авито успешно загружены = ", url[2])
 
-    return (page_soup_bs)
-    # try:
-    #     driver.get(url[3])
-    #     time.sleep(2)
-    # except Exception as ex:
-    #     print(ex)
-    #
-    # finally:
-    #     print("Куки успешно загружены = ", url[3])
-    #
+    return page_soup_avito
     # try:
     #     driver.get(url[4])
     #     time.sleep(2)
@@ -177,32 +139,29 @@ def get_cookies():
     #     print("Куки успешно загружены = ", url[5])
 
 
-def parse_avito(data):
+def parse_avito(page_soup_avito):
     tprint("Parser_Avito")
-    time.sleep(3.5)
-    page_max = data.find('div', {'class': 'js-pages pagination-pagination-_FSNE'}).find_all('span', {'class': 'styles-module-text-InivV'})
+    time.sleep(6)
+    page_max = page_soup_avito.find('div', {'class': 'js-pages pagination-pagination-_FSNE'}).find_all('span', {'class': 'styles-module-text-InivV'})
     int_max_page = int(page_max[6].get_text())
     print('Максимальное кол-во станиц = ', int_max_page)
-
-    for i in range(int_max_page):
+    i = 2
+    for i in range(4):
         url_next = url[2] + f'?p={i}'
         driver.get(url_next)
         for cookie in pickle.load(open('cookies_avito', 'rb')):
             driver.add_cookie(cookie)
         time.sleep(3)
-        catalog = data.find('div', {'class': 'items-items-kAJAg'})
+        page = driver.page_source
+        page_hh_ru = BeautifulSoup(page, 'html.parser')
+        catalog = page_hh_ru.find('div', {'class': 'items-items-kAJAg'})
         card_all = catalog.find_all('div', {'class': 'iva-item-body-KLUuy'})
-
-
-
         for card in card_all:
             i = 0
-
             p = card.find_all('p')
             print(len(p))
             # card_text = card.find('div', {'class': 'iva-item-descriptionStep-C0ty1'})
             i = i + 1
-
             project.append({
                 'name': card.find('h3', {'class': 'styles-module-root-TWVKW styles-module-root-_KFFt styles-module-size_l-_oGDF styles-module-size_l-hruVE styles-module-ellipsis-LKWy3 styles-module-weight_bold-Kpd5F stylesMarningNormal-module-root-OSCNq stylesMarningNormal-module-header-l-qvNIS'}).text,
                 'ZP': card.find('span', {'class': ''}).text,
@@ -211,12 +170,48 @@ def parse_avito(data):
                 # 'time_publication': p[y].text,
             })
 
-        for project_ in project:
-            print(project_)
         print('Найдена карточек всего на этом сайте = ', len(project), url_next)
 
+
+def parse_hh_ru(page_soup_hhru):
+    tprint("Parser_HH_Ru")
+    time.sleep(3.5)
+    page_max = page_soup_hhru.find('div', {'class': 'pager'})
+    a_max = page_max.find_all('a', {'class': 'bloko-button'})
+    # Поиск и получение максимального количества страниц для цикла
+    a_max_int = int(a_max[4].get_text())
+
+    print('Максимальное кол-во страниц = ', a_max_int)
+    for h in range(5):
+        url_next = url[0] + f'?relocation=living_or_relocation&gender=unknown&search_period=0&page={h}'
+        for cookie in pickle.load(open('cookies_hh_ru', 'rb')):
+            driver.add_cookie(cookie)
+        driver.get(url_next)
+        driver.refresh()
+        page = driver.page_source
+        page_hh_ru = BeautifulSoup(page, 'html.parser')
+        time.sleep(2)
+        all_crd = page_hh_ru.findAll('div', {'class': 'serp-item'})
+        print(url_next)
+        for card in all_crd:
+            span = card.find_all('span')
+            job_age = card.find_all('div', attrs={'data-qa': 'resume-serp__resume-excpirience-sum'})
+            project.append({
+                'card_job': card.find('a', {'class': 'serp-item__title'}).text,
+                'human_age': span[1].text.strip('xa0'),
+                'job_status': span[3].text,
+                'job_age': span[4].text.strip('xa0'),
+                'link': url[0] + card.find('a', {'class': 'serp-item__title'})['href'],
+            })
+
+
 def main():
-    parse_avito(get_cookies())
+    parse_hh_ru(get_cookies_hh_ru())
+    for projects in project:
+        print(projects)
+    # parse_avito(get_cookies_avito())
+    # for project_ in project:
+    #     print(project_)
 
 
 if __name__ == '__main__':
