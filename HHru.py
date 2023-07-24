@@ -15,9 +15,9 @@ url = [
     'https://stavropol.hh.ru/search/resume',
     'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
     'https://www.avito.ru/moskva/rezume',
-    'https://joblab.ru/access.php',
+    'https://joblab.ru/search.php?r=res&srregion=50&page=0&submit=1',
     'https://www.rabota.ru/v3_login.html'
-    'https://gorodrabot.ru/site/login',
+    'https://moskva.gorodrabot.ru/resumes?',
 ]
 
 project = []
@@ -139,6 +139,24 @@ def get_cookies_avito():
     #     print("Куки успешно загружены = ", url[5])
 
 
+def get_cookies_job_lab():
+    try:
+        driver.get(url[3])
+        time.sleep(3)
+        for cookie in pickle.load(open('cookies_job_lab', 'rb')):
+            driver.add_cookie(cookie)
+        driver.refresh()
+        time.sleep(5)
+        page = driver.page_source
+        page_job_lab = BeautifulSoup(page, 'html.parser')
+    except Exception as ex:
+        print(ex)
+    finally:
+        print("Куки авито успешно загружены = ", url[3])
+
+    return page_job_lab
+
+
 def parse_avito(page_soup_avito):
     tprint("Parser_Avito")
     time.sleep(6)
@@ -146,7 +164,7 @@ def parse_avito(page_soup_avito):
     int_max_page = int(page_max[6].get_text())
     print('Максимальное кол-во станиц = ', int_max_page)
     i = 2
-    for i in range(4):
+    for i in range(1, int_max_page, + 1):
         url_next = url[2] + f'?p={i}'
         driver.get(url_next)
         for cookie in pickle.load(open('cookies_avito', 'rb')):
@@ -182,7 +200,7 @@ def parse_hh_ru(page_soup_hhru):
     a_max_int = int(a_max[4].get_text())
 
     print('Максимальное кол-во страниц = ', a_max_int)
-    for h in range(5):
+    for h in range(a_max_int):
         url_next = url[0] + f'?relocation=living_or_relocation&gender=unknown&search_period=0&page={h}'
         for cookie in pickle.load(open('cookies_hh_ru', 'rb')):
             driver.add_cookie(cookie)
@@ -205,10 +223,48 @@ def parse_hh_ru(page_soup_hhru):
             })
 
 
+def parer_job_lab(page_job_lab):
+    tprint("Parser_Job_Lab")
+    time.sleep(6)
+    page_max = page_job_lab.find_all('a', {'class': 'pager'})
+    int_max_page = int(page_max[6].get_text())
+    print('Максимальное кол-во станиц = ', int_max_page)
+    for i in range(1, 4):
+        url_next = f'https://joblab.ru/search.php?r=res&srregion=50&page={i}&submit=1'
+        driver.get(url_next)
+        for cookie in pickle.load(open('cookies_job_lab', 'rb')):
+            driver.add_cookie(cookie)
+        page_job_lab = BeautifulSoup(driver.page_source, 'html.parser')
+        name_all = page_job_lab.find_all('p', {'class': 'prof'})
+        table = page_job_lab.find('tbody')
+        td = table.find_all('td', {'class': ''})[9:]
+
+        print(url_next)
+        print(len(name_all))
+        i = -1
+        for name in name_all:
+            p = page_job_lab.find_all('p', attrs={'style': 'font-size:16px; padding:6px 0 6px 0;'})
+            y = page_job_lab.find_all('p', attrs={'style': 'font-size:15px; padding:6px 0 6px 0; color:#555;'})
+            zp = page_job_lab.find_all('td', {'class': 'hhide680'})
+            print(len(p))
+            i = i + 1
+            print('i = ', i)
+            project.append({
+                'name_job': name.find('a', attrs={'target': '_blank'}).text,
+                'name/age': p[i].text,
+                'job_age': y[i].text,
+                'zp': zp[i].find('p').text,
+            })
+        i = 0
+
+
 def main():
-    parse_hh_ru(get_cookies_hh_ru())
+    parer_job_lab(get_cookies_job_lab())
     for projects in project:
         print(projects)
+    # parse_hh_ru(get_cookies_hh_ru())
+    # for projects in project:
+    #     print(projects)
     # parse_avito(get_cookies_avito())
     # for project_ in project:
     #     print(project_)
