@@ -10,3 +10,4 @@ login_job_lab = 'programm1972@mail.ru',
 
 login_gorod_rabot = 'programm1972@mail.ru',
 password_gorod_rabot = 'Aleksandr9315'
+

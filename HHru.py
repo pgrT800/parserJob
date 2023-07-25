@@ -10,6 +10,7 @@ import csv
 from fake_useragent import UserAgent
 from pass_var import *
 from art import tprint
+from test_dir.test import print_def
 
 url = [
     'https://stavropol.hh.ru/search/resume',
@@ -323,9 +324,10 @@ def parser_gorod_rabot(page_gorod_rabot):
 
 
 def main():
-    parser_gorod_rabot(get_cookies_gorod_rabot())
-    for project_ in project:
-        print(project_)
+    print_def()
+    # parser_gorod_rabot(get_cookies_gorod_rabot())
+    # for project_ in project:
+    #     print(project_)
     # parer_job_lab(get_cookies_job_lab())
     # for projects in project:
     #     print(projects)
