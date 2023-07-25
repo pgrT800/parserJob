@@ -307,24 +307,25 @@ def parser_gorod_rabot(page_gorod_rabot):
         lists_crd = page_gorod.find('div', {'class': 'result-list'})
         all_crd = lists_crd.find_all('div', {'class': 'result-list__snippet snippet'})
         for card in all_crd:
-            i =+ 1
+            i = 2
             location = card.find_all('span', {'class': 'snippet__meta-value'})
-            print(len(location))
             project.append({
                 'name_job': card.find('a', {'class': 'snippet__title-link link'}).text,
-                'ZP': card.find('span', {'class': 'snippet__salary'}).text.strip('xa').strip('\n').strip('                    '),
-                'age': card.find('span', {'class': 'snippet__meta-value'}).text.strip(''),
-                'location': location[i].text,
-
+                'ZP': card.find('span', {'class': 'snippet__salary'}).text.strip('xa').strip('\n').strip('                    ').strip('\n'),
+                'age': card.find('span', {'class': 'snippet__meta-value'}).text.strip('\n                    ').strip('\n                        \n'),
+                'location': location[1].text.strip('').strip('\n                        ').strip('                    '),
+                'discriptons': card.find('div', {'class': 'snippet__desc'}).text.strip('\n                ').strip('  ...             '),
+                'time_publication': card.find('div', {'class': 'snippet__source'}).text.strip('\n                    ').strip('                '),
+                'link': card.find('a', {'class':'snippet__title-link link'})['href'],
             })
         print(url_next)
         print('Найдено всего соискателей = ', len(project))
-        for project_ in project:
-            print(project_)
 
 
 def main():
     parser_gorod_rabot(get_cookies_gorod_rabot())
+    for project_ in project:
+        print(project_)
     # parer_job_lab(get_cookies_job_lab())
     # for projects in project:
     #     print(projects)
