@@ -16,8 +16,8 @@ url = [
     'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
     'https://www.avito.ru/moskva/rezume',
     'https://joblab.ru/search.php?r=res&srregion=50&page=0&submit=1',
-    'https://www.rabota.ru/v3_login.html'
-    'https://moskva.gorodrabot.ru/resumes?',
+    'https://www.rabota.ru/v3_login.html',
+    'https://gorodrabot.ru/site/login',
 ]
 
 project = []
@@ -157,6 +157,36 @@ def get_cookies_job_lab():
     return page_job_lab
 
 
+def get_cookies_gorod_rabot():
+    try:
+        driver.get(url[5])
+        # time.sleep(3)
+        # login_email = driver.find_element(By.NAME, 'email')
+        # login_email.send_keys(login_gorod_rabot)
+        # time.sleep(1)
+        # password = driver.find_element(By.NAME, 'password')
+        # password.send_keys(password_gorod_rabot)
+        # time.sleep(1)
+        # password.send_keys(Keys.ENTER)
+        # pickle.dump(driver.get_cookies(), open('cookies_gorod_rabot', 'wb'))
+        # time.sleep(5)
+        for cookie in pickle.load(open('cookies_gorod_rabot', 'rb')):
+            driver.add_cookie(cookie)
+        time.sleep(2)
+        driver.refresh()
+        time.sleep(3)
+        driver.get('https://moskva.gorodrabot.ru/resumes?')
+        time.sleep(4)
+        page = driver.page_source
+        page_gorod_rabot = BeautifulSoup(page, 'html.parser')
+    except Exception as ex:
+        print(ex)
+    finally:
+        print("Куки gorod_rabot успешно загружены = ", url[4])
+
+    return page_gorod_rabot
+
+
 def parse_avito(page_soup_avito):
     tprint("Parser_Avito")
     time.sleep(6)
@@ -258,10 +288,19 @@ def parer_job_lab(page_job_lab):
         i = 0
 
 
+def parser_gorod_rabot(page_gorod_rabot):
+    page_max_ul = page_gorod_rabot.find('ul', {'class': 'result-list__pager pager'})
+    a_page = page_gorod_rabot.find_all('a', {'class': 'pager-item'})
+    a_page = a_page[3]['href'].split('https://moskva.gorodrabot.ru/resumes?')
+    a_page = a_page[1].split('p=')
+    print(a_page)
+
+
 def main():
-    parer_job_lab(get_cookies_job_lab())
-    for projects in project:
-        print(projects)
+    parser_gorod_rabot(get_cookies_gorod_rabot())
+    # parer_job_lab(get_cookies_job_lab())
+    # for projects in project:
+    #     print(projects)
     # parse_hh_ru(get_cookies_hh_ru())
     # for projects in project:
     #     print(projects)
