@@ -175,7 +175,7 @@ def get_cookies_gorod_rabot():
         time.sleep(2)
         driver.refresh()
         time.sleep(3)
-        driver.get('https://moskva.gorodrabot.ru/resumes?')
+        driver.get('https://moskva.gorodrabot.ru/resumes?p=1000')
         time.sleep(4)
         page = driver.page_source
         page_gorod_rabot = BeautifulSoup(page, 'html.parser')
@@ -289,11 +289,38 @@ def parer_job_lab(page_job_lab):
 
 
 def parser_gorod_rabot(page_gorod_rabot):
+    tprint('Parser_Gorod_rabot')
+    # Поиск максимального кол во страниц
     page_max_ul = page_gorod_rabot.find('ul', {'class': 'result-list__pager pager'})
     a_page = page_gorod_rabot.find_all('a', {'class': 'pager-item'})
-    a_page = a_page[3]['href'].split('https://moskva.gorodrabot.ru/resumes?')
-    a_page = a_page[1].split('p=')
-    print(a_page)
+    a_page = a_page[4]['href'].split('https://moskva.gorodrabot.ru/resumes?p=')
+    int_max_page = int(a_page[1])
+    print('Максимальное кол - во страниц = ', int_max_page)
+    for i in range(1, int_max_page + 1):
+        url_next = f'https://moskva.gorodrabot.ru/resumes?p={i}'
+        driver.get(url_next)
+        for cookie in pickle.load(open('cookies_gorod_rabot', 'rb')):
+            driver.add_cookie(cookie)
+        driver.refresh()
+        time.sleep(1)
+        page_gorod = BeautifulSoup(driver.page_source, 'html.parser')
+        lists_crd = page_gorod.find('div', {'class': 'result-list'})
+        all_crd = lists_crd.find_all('div', {'class': 'result-list__snippet snippet'})
+        for card in all_crd:
+            i =+ 1
+            location = card.find_all('span', {'class': 'snippet__meta-value'})
+            print(len(location))
+            project.append({
+                'name_job': card.find('a', {'class': 'snippet__title-link link'}).text,
+                'ZP': card.find('span', {'class': 'snippet__salary'}).text.strip('xa').strip('\n').strip('                    '),
+                'age': card.find('span', {'class': 'snippet__meta-value'}).text.strip(''),
+                'location': location[i].text,
+
+            })
+        print(url_next)
+        print('Найдено всего соискателей = ', len(project))
+        for project_ in project:
+            print(project_)
 
 
 def main():
