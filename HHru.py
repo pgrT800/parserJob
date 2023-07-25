@@ -10,7 +10,7 @@ import csv
 from fake_useragent import UserAgent
 from pass_var import *
 from art import tprint
-from test_dir.test import print_def
+
 
 url = [
     'https://stavropol.hh.ru/search/resume',
@@ -35,6 +35,7 @@ print(agent)
 
 def get_cookies_hh_ru():
     # Куки хх ру и возвращение обьекта bs4
+
     try:
         driver.get(url[0])
         time.sleep(4)
@@ -220,6 +221,7 @@ def parse_avito(page_soup_avito):
             })
 
         print('Найдена карточек всего на этом сайте = ', len(project), url_next)
+    return project
 
 
 def parse_hh_ru(page_soup_hhru):
@@ -252,6 +254,7 @@ def parse_hh_ru(page_soup_hhru):
                 'job_age': span[4].text.strip('xa0'),
                 'link': url[0] + card.find('a', {'class': 'serp-item__title'})['href'],
             })
+    return project
 
 
 def parer_job_lab(page_job_lab):
@@ -287,6 +290,7 @@ def parer_job_lab(page_job_lab):
                 'zp': zp[i].find('p').text,
             })
         i = 0
+    return project
 
 
 def parser_gorod_rabot(page_gorod_rabot):
@@ -321,17 +325,17 @@ def parser_gorod_rabot(page_gorod_rabot):
             })
         print(url_next)
         print('Найдено всего соискателей = ', len(project))
+    return project
 
 
 def main():
-    print_def()
     # parser_gorod_rabot(get_cookies_gorod_rabot())
     # for project_ in project:
     #     print(project_)
     # parer_job_lab(get_cookies_job_lab())
     # for projects in project:
     #     print(projects)
-    # parse_hh_ru(get_cookies_hh_ru())
+    parse_hh_ru(get_cookies_hh_ru())
     # for projects in project:
     #     print(projects)
     # parse_avito(get_cookies_avito())
