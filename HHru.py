@@ -17,7 +17,7 @@ url = [
     'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
     'https://www.avito.ru/moskva/rezume',
     'https://joblab.ru/search.php?r=res&srregion=50&page=0&submit=1',
-    'https://www.rabota.ru/v3_login.html',
+    'https://www.rabota.ru/?page=23',
     'https://gorodrabot.ru/site/login',
 ]
 
@@ -53,51 +53,7 @@ def get_cookies_hh_ru():
     finally:
         print("Куки хх ру успешно загружены = ", url[0])
 
-    # try:
-    #     driver.get(url[1])
-    #     time.sleep(2)
-    #     div_load = driver.find_element(By.CLASS_NAME, 'main__search-sidebar')
-    #     time.sleep(2)
-    #     button_load = div_load.find_elements(By.TAG_NAME, 'button')
-    #     time.sleep(3)
-    #     while len(button_load) == 1:
-    #         print('Кнопка есть  = ', len(button_load))
-    #         humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
-    #         if len(humans) >= 350:
-    #             print('Кнопка нет  = ', len(button_load))
-    #             break
-    #         print('Найдено соискателей = ', len(humans))
-    #         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    #         time.sleep(2)
-    #         button_load = div_load.find_elements(By.TAG_NAME, 'button')
-    #         button_load[0].click()
-    #         time.sleep(2)
-    #     print('---------------------------------------------------------------------------------------------')
-    #         # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    #         # time.sleep(3)
-    #         # humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
-    #     page = driver.page_source
-    #     page_hh_ru = BeautifulSoup(page, 'html.parser')
-    #     with open("trudvsem.html", "w", encoding="utf-8") as file:
-    #         file.write(page_hh_ru.prettify())
-    #     time.sleep(10)
-    #     humans_bs = page_hh_ru.find_all('div', {'class': 'search-results-simple-card__main-content search-results-simple-card__name'})
-    #     for human in humans_bs:
-    #         project.append({
-    #             'title': human.text,
-    #         })
-    #
-    #
-    #
-    #
-    # except Exception as ex:
-    #     print(ex)
-    #     driver.quit()
-    #     driver.close()
-    # finally:
-    #     print("Куки успешно загружены = ", url[1])
-    #     for job in project:
-    #         print(job.text)
+
     # Подгрузка куки Авито
 
     return page_soup_hhru
@@ -160,6 +116,7 @@ def get_cookies_job_lab():
 
 
 def get_cookies_gorod_rabot():
+    # global page_gorod_rabot
     try:
         driver.get(url[5])
         # time.sleep(3)
@@ -187,6 +144,72 @@ def get_cookies_gorod_rabot():
         print("Куки gorod_rabot успешно загружены = ", url[4])
 
     return page_gorod_rabot
+
+
+def get_cookies_rabota_ru():
+    driver.get(url[4])
+    time.sleep(3)
+    driver.refresh()
+    for cookie in pickle.load(open('cookies_rabota_ru', 'rb')):
+        driver.add_cookie(cookie)
+    time.sleep(10)
+    page = driver.page_source
+    page_rabota_ru = BeautifulSoup(page, 'html.parser')
+    print(page_rabota_ru.prettify())
+
+
+def get_cookies_tryd_vsem():
+    try:
+        driver.get(url[1])
+        time.sleep(2)
+        div_load = driver.find_element(By.CLASS_NAME, 'main__search-sidebar')
+        time.sleep(2)
+        button_load = div_load.find_elements(By.TAG_NAME, 'button')
+        time.sleep(3)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+        visible_button = button_load[0].is_displayed()
+        while visible_button == True:
+            print('Кнопка есть  = ', visible_button)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            print('Прокрутка 1')
+            button_visible = div_load.find_elements(By.TAG_NAME, 'button')
+            visible_button_dop = button_visible[0].is_displayed()
+            if visible_button_dop == False:
+                print('Кнопка нет  = ', visible_button_dop)
+                print('---------------------------------------------------------------------------------------------')
+                break
+            else:
+                print('Прокрутка 2')
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
+                button_load[0].click()
+            humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
+            time.sleep(2)
+            print('Прокрутка 3')
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            print('Найдено соискателей = ', len(humans))
+            time.sleep(2)
+        page_driver = driver.page_source
+        page_trud_vsem = BeautifulSoup(page_driver, 'html.parser')
+        print('\n================================')
+        with open("trudvsem.html", "w", encoding="utf-8") as file:
+            file.write(page_trud_vsem.prettify())
+        time.sleep(10)
+        humans_bs = page_trud_vsem.find_all('strong', {'class': 'search-results-simple-card__main-content search-results-simple-card__name'})
+        print(len(humans_bs))
+        for humans in humans_bs:
+            project.append({
+                'title': humans.text,
+            })
+
+    except Exception as ex:
+        print(ex)
+        driver.quit()
+        driver.close()
+    finally:
+        print("Куки успешно загружены = ", url[1])
+        print(project)
 
 
 def parse_avito(page_soup_avito):
@@ -329,18 +352,13 @@ def parser_gorod_rabot(page_gorod_rabot):
 
 
 def main():
+    get_cookies_tryd_vsem()
+    for project_ in project:
+        print(project_)
     # parser_gorod_rabot(get_cookies_gorod_rabot())
-    # for project_ in project:
-    #     print(project_)
     # parer_job_lab(get_cookies_job_lab())
-    # for projects in project:
-    #     print(projects)
-    parse_hh_ru(get_cookies_hh_ru())
-    # for projects in project:
-    #     print(projects)
+    # parse_hh_ru(get_cookies_hh_ru())
     # parse_avito(get_cookies_avito())
-    # for project_ in project:
-    #     print(project_)
 
 
 if __name__ == '__main__':
