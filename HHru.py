@@ -17,7 +17,7 @@ url = [
     'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
     'https://www.avito.ru/moskva/rezume',
     'https://joblab.ru/search.php?r=res&srregion=50&page=0&submit=1',
-    'https://www.rabota.ru/?page=23',
+    'https://stavropol.rabota.ru/v3_searchResumeByParamsResults.html?id=34082135',
     'https://gorodrabot.ru/site/login',
 ]
 
@@ -26,9 +26,12 @@ project = []
 u_ag = UserAgent()
 agent = u_ag.random
 options = webdriver.EdgeOptions()
-options.add_argument(f'user-agent{agent}')
+# options.add_argument(f'user-agent{agent}')
 options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument("--headless")
+# Верхния строчка опций отвечает за фоновую работу браузера
 driver = webdriver.Edge(options=options)
+
 # options.set_preference("dom.webdriver.enabled", False)
 print(agent)
 
@@ -147,69 +150,29 @@ def get_cookies_gorod_rabot():
 
 
 def get_cookies_rabota_ru():
-    driver.get(url[4])
-    time.sleep(3)
-    driver.refresh()
-    for cookie in pickle.load(open('cookies_rabota_ru', 'rb')):
-        driver.add_cookie(cookie)
-    time.sleep(10)
-    page = driver.page_source
-    page_rabota_ru = BeautifulSoup(page, 'html.parser')
-    print(page_rabota_ru.prettify())
-
-
-def get_cookies_tryd_vsem():
     try:
-        driver.get(url[1])
-        time.sleep(2)
-        div_load = driver.find_element(By.CLASS_NAME, 'main__search-sidebar')
-        time.sleep(2)
-        button_load = div_load.find_elements(By.TAG_NAME, 'button')
-        time.sleep(3)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(2)
-        visible_button = button_load[0].is_displayed()
-        while visible_button == True:
-            print('Кнопка есть  = ', visible_button)
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            print('Прокрутка 1')
-            button_visible = div_load.find_elements(By.TAG_NAME, 'button')
-            visible_button_dop = button_visible[0].is_displayed()
-            if visible_button_dop == False:
-                print('Кнопка нет  = ', visible_button_dop)
-                print('---------------------------------------------------------------------------------------------')
-                break
-            else:
-                print('Прокрутка 2')
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(1)
-                button_load[0].click()
-            humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
-            time.sleep(2)
-            print('Прокрутка 3')
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            print('Найдено соискателей = ', len(humans))
-            time.sleep(2)
-        page_driver = driver.page_source
-        page_trud_vsem = BeautifulSoup(page_driver, 'html.parser')
-        print('\n================================')
-        with open("trudvsem.html", "w", encoding="utf-8") as file:
-            file.write(page_trud_vsem.prettify())
+        driver.get('https://stavropol.rabota.ru/v3_login.html')
+        input_login = driver.find_element(By.NAME, 'login')
+        time.sleep(1)
+        input_login.send_keys(login_rabota)
+        input_password = driver.find_element(By.NAME, 'password')
+        input_password.send_keys(password_rabota)
+        time.sleep(1)
+        input_password.send_keys(Keys.ENTER)
+        pickle.dump(driver.get_cookies(), open('cookies_rabota_ru', 'wb'))
+        time.sleep(5)
+        driver.get('https://stavropol.rabota.ru/v3_searchResumeByParamsResults.html?id=34082135')
+        for cookie in pickle.load(open('cookies_rabota_ru', 'rb')):
+            driver.add_cookie(cookie)
+        driver.refresh()
         time.sleep(10)
-        humans_bs = page_trud_vsem.find_all('strong', {'class': 'search-results-simple-card__main-content search-results-simple-card__name'})
-        print(len(humans_bs))
-        for humans in humans_bs:
-            project.append({
-                'title': humans.text,
-            })
+        page = driver.page_source
+        page_rabota_ru = BeautifulSoup(page, 'html.parser')
 
     except Exception as ex:
         print(ex)
-        driver.quit()
-        driver.close()
     finally:
-        print("Куки успешно загружены = ", url[1])
-        print(project)
+        print('Куки rabota_ru успешно загружены =', url[4])
 
 
 def parse_avito(page_soup_avito):
@@ -280,13 +243,72 @@ def parse_hh_ru(page_soup_hhru):
     return project
 
 
+def parser_tryd_vsem():
+    try:
+        driver.get(url[1])
+        time.sleep(2)
+        div_load = driver.find_element(By.CLASS_NAME, 'main__search-sidebar')
+        time.sleep(2)
+        button_load = div_load.find_elements(By.TAG_NAME, 'button')
+        time.sleep(3)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+        visible_button = button_load[0].is_displayed()
+        while visible_button == True:
+            print('Кнопка есть  = ', visible_button)
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            print('Прокрутка 1')
+            button_visible = div_load.find_elements(By.TAG_NAME, 'button')
+            visible_button_dop = button_visible[0].is_displayed()
+            if visible_button_dop == False:
+                print('Кнопка нет  = ', visible_button_dop)
+                print('---------------------------------------------------------------------------------------------')
+                break
+            else:
+                print('Прокрутка 2')
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
+                button_load[0].click()
+            humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
+            time.sleep(2)
+            print('Прокрутка 3')
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            print('Найдено соискателей = ', len(humans))
+            time.sleep(2)
+        page_driver = driver.page_source
+        page_trud_vsem = BeautifulSoup(page_driver, 'html.parser')
+        print('\n================================')
+        with open("trudvsem.html", "w", encoding="utf-8") as file:
+            file.write(page_trud_vsem.prettify())
+        time.sleep(10)
+        humans_bs = page_trud_vsem.find_all('div', {'class': 'search-results-simple-card mb-1'})
+        print(len(humans_bs))
+        for humans in humans_bs:
+            location_all = humans.find_all('div', {'class': 'content_small content_clip'})
+            project.append({
+                'title': humans.find('strong').text,
+                'ZP': humans.find('div', {'class': 'search-results-simple-card__salary'}).text.strip('\n                ').strip('\n            '),
+                'last_job': location_all[0].text,
+                'location': location_all[1].text,
+                'time_publication': humans.find('div', {'class': 'content_pale'}).text,
+            })
+
+    except Exception as ex:
+        print(ex)
+        driver.quit()
+        driver.close()
+    finally:
+        print("Куки успешно загружены = ", url[1])
+    return project
+
+
 def parer_job_lab(page_job_lab):
     tprint("Parser_Job_Lab")
     time.sleep(6)
     page_max = page_job_lab.find_all('a', {'class': 'pager'})
     int_max_page = int(page_max[6].get_text())
     print('Максимальное кол-во станиц = ', int_max_page)
-    for i in range(1, 4):
+    for i in range(1, int_max_page):
         url_next = f'https://joblab.ru/search.php?r=res&srregion=50&page={i}&submit=1'
         driver.get(url_next)
         for cookie in pickle.load(open('cookies_job_lab', 'rb')):
@@ -351,14 +373,50 @@ def parser_gorod_rabot(page_gorod_rabot):
     return project
 
 
+def parser_rabora_ru():
+    try:
+        driver.get(url[4])
+        time.sleep(2)
+        for cookie in pickle.load(open('cookies_rabota_ru', 'rb')):
+            driver.add_cookie(cookie)
+        driver.refresh()
+        div_load = driver.find_element(By.ID, 'resumeListLoadingIndicator')
+        time.sleep(2)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        visible_button = div_load.is_displayed()
+        print(visible_button)
+        while visible_button == True:
+            card_all = driver.find_elements(By.CLASS_NAME, 'b-center__box resum_rez_item')
+            print('Найдено всего соискателей = ', len(card_all))
+            print('Прокрутка 1')
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(1)
+            div_load_if = driver.find_element(By.ID, 'resumeListLoadingIndicator')
+            time.sleep(1)
+            visible_button_if = div_load_if.is_displayed()
+            # if visible_button_if == False:
+            #     print('Кнопка нет  = ', visible_button_if)
+            #     print('---------------------------------------------------------------------------------------------')
+            #     break
+            # else:
+            #     print('Прокрутка 2')
+            #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            #     time.sleep(1)
+    except Exception as ex:
+        print(ex)
+    finally:
+        print("Куки успешно загружены = ", url[4])
+
+
 def main():
-    get_cookies_tryd_vsem()
-    for project_ in project:
-        print(project_)
-    # parser_gorod_rabot(get_cookies_gorod_rabot())
+    parser_tryd_vsem()
+    # parser_rabora_ru(get_cookies_rabota_ru())
+    parser_gorod_rabot(get_cookies_gorod_rabot())
     # parer_job_lab(get_cookies_job_lab())
     # parse_hh_ru(get_cookies_hh_ru())
     # parse_avito(get_cookies_avito())
+    for project_ in project:
+        print(project_)
 
 
 if __name__ == '__main__':
