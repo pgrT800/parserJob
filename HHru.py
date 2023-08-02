@@ -12,11 +12,28 @@ from pass_var import *
 from art import tprint
 
 
+tprint('HH_RU_FILTERS')
+#     Значения переезда living_or_relocation \ living \living_but_relocation \ relocation
+text = input('Какого сутрудника вы ищите ? =')
+relocation = input('Введите одну из категрий  переезда = living_or_relocation \ living \living_but_relocation \ relocation = ')
+job_search_status = input('Введите один из статус поиска \ unknown \ not_looking_for_job \ looking_for_offers \ active_search \ has_job_offer \ accepted_job_offer = ')
+age_from = input('Введите возраст от = ')
+age_to = input('Введите возраст до = ')
+employment = input('Введите один из типов занятости \ full \ part \ progect \ probation \ volunteer = ')
+schedule = input('Введите один из типов расписания \ fullDay \ shift \ flexible \ remote \ flyInFlyOut  = ')
+experience = input('Ведите опыт работы \ moreThan6 \ between3And6 \ noExperience \ between1And3 \  = ')
+gender = input('Введите один из гenders \ unknown \ male \ female \ = ')
+salary_from = input('Введите доход от = ')
+salary_to = input('Введите доход до = ')
+education_level = input('Введите один из уровней образования \ secondary \ specisl_secondary \ unfinished_higher \ bachelor \ master \ higher \ candidate \ doctor = ')
+area = input('Введите один из регионов  "&area=1" (Москва) "&area=2" (Питнер)   "&area=4"  (Новосибирск ) "&area=3"  (екат)  "&area=88" (Казань)  "&area=66" (Нижний Новгород)   "&area=104"  (Челябинск) "&area=54"  (Красноярск) "&area=78"  (Самара) "&area=99"  (Уфа) "&area=76"  (ростов-на-Дону) "&area=68"  (Омск) "&area=53"  (Краснодар) "&area=26"  (Воронеж) "&area=72"  (Пермь) "&area=24"  (Волгоград)  = ')
+
+
 url = [
-    'https://stavropol.hh.ru/search/resume',
-    'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG',
+    f'https://stavropol.hh.ru/search/resume?text={text}&area={area}&age_from={age_from}&age_to={age_to}&employment={employment}&experience={experience}&education_level={education_level}&job_search_status={job_search_status}&relocation={relocation}&schedule=f{schedule}&salary_from={salary_from}&salary_to={salary_to}&gender={gender}&text=&logic=normal&pos=full_text&exp_period=all_time&order_by=relevance&search_period=0&items_on_page=50&no_magic=false',
+    'https://trudvsem.ru/cv/search?_regionIds=2600000000000&page=0&salary=0&salary=999999&experience=EXP_STAFF&cvType=LONG', #!
     'https://www.avito.ru/moskva/rezume',
-    'https://joblab.ru/search.php?r=res&srregion=50&page=0&submit=1',
+    'https://joblab.ru/search.php?r=res&srregion=50&page=0&submit=1', #!
     'https://stavropol.rabota.ru/v3_searchResumeByParamsResults.html?id=34082135',
     'https://gorodrabot.ru/site/login',
 ]
@@ -26,9 +43,9 @@ project = []
 u_ag = UserAgent()
 agent = u_ag.random
 options = webdriver.EdgeOptions()
-# options.add_argument(f'user-agent{agent}')
+options.add_argument(f'user-agent{agent}')
 options.add_argument("--disable-blink-features=AutomationControlled")
-options.add_argument("--headless")
+# options.add_argument("--headless")
 # Верхния строчка опций отвечает за фоновую работу браузера
 driver = webdriver.Edge(options=options)
 
@@ -240,6 +257,8 @@ def parse_hh_ru(page_soup_hhru):
                 'job_age': span[4].text.strip('xa0'),
                 'link': url[0] + card.find('a', {'class': 'serp-item__title'})['href'],
             })
+        for project_ in project:
+            print(project_)
     return project
 
 
@@ -409,14 +428,13 @@ def parser_rabora_ru():
 
 
 def main():
-    parser_tryd_vsem()
+    # parser_tryd_vsem()
     # parser_rabora_ru(get_cookies_rabota_ru())
-    parser_gorod_rabot(get_cookies_gorod_rabot())
+    # parser_gorod_rabot(get_cookies_gorod_rabot())
     # parer_job_lab(get_cookies_job_lab())
-    # parse_hh_ru(get_cookies_hh_ru())
+    parse_hh_ru(get_cookies_hh_ru())
     # parse_avito(get_cookies_avito())
-    for project_ in project:
-        print(project_)
+
 
 
 if __name__ == '__main__':
