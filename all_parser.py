@@ -12,7 +12,8 @@ from pass_var import *
 from art import tprint
 from selenium.webdriver.chrome.options import Options
 
-tprint('HH_RU_FILTERS')
+
+tprint('Parsing_xXx')
 #     Значения переезда living_or_relocation \ living \living_but_relocation \ relocation
 #$text = input('Какого сутрудника вы ищите ? =')
 #$relocation = input('Введите одну из категрий  переезда = living_or_relocation \ living \living_but_relocation \ relocation = ')
@@ -43,16 +44,20 @@ project = []
 chrome_driver_path = r'C:\Users\Александр А.А\Documents\GitHub\parserJob\chromedriver\geckodriver.exe'
 
 u_ag = UserAgent()
-agent = u_ag.random
+agent = u_ag
 optionss = webdriver.ChromeOptions()
 service = webdriver.ChromeService(executable_path = 'chromedriver.exe')
-optionss.headless = True
-#optionss.add_argument('headless')
+
+optionss.add_argument("--window-size=800,1000")
 optionss.add_argument(f'user-agent{agent}')
 optionss.add_argument("--disable-blink-features=AutomationControlled")
-driver = webdriver.Chrome(service=service)
+#prefs = {"profile.default_content_setting_values.notifications": 2}
+#optionss.add_argument("prefs", prefs)
+optionss.add_argument("--mute-audio")
+optionss.add_argument('--ignore-certificate-errors')
+optionss.page_load_strategy = 'eager'
 
-#optionss.set_preference("dom.webdriver.enabled", False)
+driver = webdriver.Chrome(service=service, options=optionss)
 print(agent)
 
 
@@ -193,9 +198,10 @@ def get_cookies_rabota_ru():
         print(ex)
     finally:
         print('Куки rabota_ru успешно загружены =', url[4])
-
+    return page_rabota_ru
 
 def parse_avito(page_soup_avito):
+    driver.switch_to.new_window('window')
     tprint("Parser_Avito")
     time.sleep(6)
     page_max = page_soup_avito.find('div', {'class': 'js-pages pagination-pagination-_FSNE'}).find_all('span', {'class': 'styles-module-text-InivV'})
@@ -231,6 +237,7 @@ def parse_avito(page_soup_avito):
 
 
 def parse_hh_ru(page_soup_hhru):
+    driver.switch_to.new_window('window')
     tprint("Parser_HH_Ru")
     time.sleep(3.5)
     page_max = page_soup_hhru.find('div', {'class': 'pager'})
@@ -266,7 +273,9 @@ def parse_hh_ru(page_soup_hhru):
 
 
 def parser_tryd_vsem():
+    
     try:
+        driver.switch_to.new_window('window')
         driver.get(url[1])
         time.sleep(2)
         div_load = driver.find_element(By.CLASS_NAME, 'main__search-sidebar')
@@ -321,6 +330,7 @@ def parser_tryd_vsem():
         driver.close()
     finally:
         print("Куки успешно загружены = ", url[1])
+        
     return project
 
 
@@ -360,7 +370,9 @@ def parer_job_lab(page_job_lab):
     return project
 
 
-def parser_gorod_rabot(page_gorod_rabot):
+def parser_gorod_rabot(page_gorod_rabot,driver):
+    driver = driver
+    driver.switch_to.new_window('window')
     tprint('Parser_Gorod_rabot')
     # Поиск максимального кол во страниц
     page_max_ul = page_gorod_rabot.find('ul', {'class': 'result-list__pager pager'})
@@ -392,11 +404,12 @@ def parser_gorod_rabot(page_gorod_rabot):
             })
         print(url_next)
         print('Найдено всего соискателей = ', len(project))
+    
     return project
 
-
-def parser_rabora_ru():
+def parser_rabora_ru(page_rabota_ru):
     try:
+        driver.switch_to.new_window('window')
         driver.get(url[4])
         time.sleep(2)
         for cookie in pickle.load(open('cookies_rabota_ru', 'rb')):
@@ -428,11 +441,12 @@ def parser_rabora_ru():
         print(ex)
     finally:
         print("Куки успешно загружены = ", url[4])
+        driver.quit()
 
 
 def main():
     #parser_tryd_vsem(project)
-    #arser_rabora_ru(get_cookies_rabota_ru())
+    #parser_rabora_ru(get_cookies_rabota_ru())
     # parser_gorod_rabot(get_cookies_gorod_rabot())
     # parer_job_lab(get_cookies_job_lab())
     #parse_hh_ru(get_cookies_hh_ru())

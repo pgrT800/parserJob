@@ -1,14 +1,14 @@
-passwords = 'Aleksandr9315',
-login = 'programm1972@mail.ru',
+passwords = 'you password and login',
+login = 'you password and login',
 
-password_avito = 'Aleksandr9315{}',
-login_avito = '89614429315',
+password_avito = 'you password and login',
+login_avito = 'you password and login',
 
-password_job_lab = '2633234426',
-login_job_lab = 'programm1972@mail.ru',
+password_job_lab = 'you password and login',
+login_job_lab = 'you password and login',
 
-login_gorod_rabot = 'programm1972@mail.ru',
-password_gorod_rabot = 'Aleksandr9315',
+login_gorod_rabot = 'you password and login',
+password_gorod_rabot = 'you password and login',
 
-login_rabota = 'programm1972@mail.ru',
-password_rabota = 'Aleksandr9315!',
+login_rabota = 'you password and login',
+password_rabota = 'you password and login',
