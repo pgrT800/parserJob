@@ -13,22 +13,8 @@ from art import tprint
 from selenium.webdriver.chrome.options import Options
 
 
+
 tprint('Parsing_xXx')
-#     Значения переезда living_or_relocation \ living \living_but_relocation \ relocation
-#$text = input('Какого сутрудника вы ищите ? =')
-#$relocation = input('Введите одну из категрий  переезда = living_or_relocation \ living \living_but_relocation \ relocation = ')
-#$job_search_status = input('Введите один из статус поиска \ unknown \ not_looking_for_job \ looking_for_offers \ active_search \ has_job_offer \ accepted_job_offer = ')
-#$age_from = input('Введите возраст от = ')
-#$age_to = input('Введите возраст до = ')
-#$employment = input('Введите один из типов занятости \ full \ part \ progect \ probation \ volunteer = ')
-#$schedule = input('Введите один из типов расписания \ fullDay \ shift \ flexible \ remote \ flyInFlyOut  = ')
-#$experience = input('Ведите опыт работы \ moreThan6 \ between3And6 \ noExperience \ between1And3 \  = ')
-#$gender = input('Введите один из гenders \ unknown \ male \ female \ = ')
-#$salary_from = input('Введите доход от = ')
-#$salary_to = input('Введите доход до = ')
-#$education_level = input('Введите один из уровней образования \ secondary \ specisl_secondary \ unfinished_higher \ bachelor \ master \ higher \ candidate \ doctor = ')
-#$area = input('Введите один из регионов  "&area=1" (Москва) "&area=2" (Питнер)   "&area=4"  (Новосибирск ) "&area=3"  (екат)  "&area=88" (Казань)  "&area=66" (Нижний Новгород)   "&area=104"  (Челябинск) "&area=54"  (Красноярск) "&area=78"  (Самара) "&area=99"  (Уфа) "&area=76"  (ростов-на-Дону) "&area=68"  (Омск) "&area=53"  (Краснодар) "&area=26"  (Воронеж) "&area=72"  (Пермь) "&area=24"  (Волгоград)  = ')
-#$
 
 url = [
     'https://stavropol.hh.ru/search/resume?text={text}&area={area}&age_from={age_from}&age_to={age_to}&employment={employment}&experience={experience}&education_level={education_level}&job_search_status={job_search_status}&relocation={relocation}&schedule=f{schedule}&salary_from={salary_from}&salary_to={salary_to}&gender={gender}&text=&logic=normal&pos=full_text&exp_period=all_time&order_by=relevance&search_period=0&items_on_page=50&no_magic=false',
@@ -41,7 +27,6 @@ url = [
 
 project = []
 
-chrome_driver_path = r'C:\Users\Александр А.А\Documents\GitHub\parserJob\chromedriver\geckodriver.exe'
 
 u_ag = UserAgent()
 agent = u_ag
@@ -237,7 +222,6 @@ def parse_avito(page_soup_avito):
 
 
 def parse_hh_ru(page_soup_hhru):
-    driver.switch_to.new_window('window')
     tprint("Parser_HH_Ru")
     time.sleep(3.5)
     page_max = page_soup_hhru.find('div', {'class': 'pager'})
@@ -303,7 +287,13 @@ def parser_tryd_vsem():
             humans = driver.find_elements(By.CLASS_NAME, 'search-results-simple-card')
             time.sleep(2)
             print('Прокрутка 3')
+            for project_ in project:
+                print(project_)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            with open('progeckt.txt', 'w', encoding="utf-8") as file:
+                print('write file')
+                file.write(str(project))
+
             print('Найдено соискателей = ', len(humans))
             time.sleep(2)
         page_driver = driver.page_source
@@ -311,9 +301,10 @@ def parser_tryd_vsem():
         print('\n================================')
         with open("trudvsem.html", "w", encoding="utf-8") as file:
             file.write(page_trud_vsem.prettify())
-        time.sleep(10)
+        time.sleep(8)
         humans_bs = page_trud_vsem.find_all('div', {'class': 'search-results-simple-card mb-1'})
         print(len(humans_bs))
+       
         for humans in humans_bs:
             location_all = humans.find_all('div', {'class': 'content_small content_clip'})
             project.append({
@@ -323,6 +314,7 @@ def parser_tryd_vsem():
                 'location': location_all[1].text,
                 'time_publication': humans.find('div', {'class': 'content_pale'}).text,
             })
+        
 
     except Exception as ex:
         print(ex)
@@ -330,8 +322,8 @@ def parser_tryd_vsem():
         driver.close()
     finally:
         print("Куки успешно загружены = ", url[1])
-        
-    return project
+        print('Содержимое проекта', project)
+    return(project)
 
 
 def parer_job_lab(page_job_lab):
